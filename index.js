@@ -147,6 +147,23 @@ app.post('/booking', async (req, res) => {
     }
 });
 
+app.get('/my-Bookings/:email', async (req, res) => {
+    try {
+        const { email } = req.params;
+
+        const result = await bookingCollection.find({
+            email: email
+        }).toArray();
+
+        res.send(result);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: "Internal Server Error" });
+    }
+});
+
+
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
