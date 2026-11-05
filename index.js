@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import { MongoClient, ObjectId } from "mongodb";
 
+
 const app = express();
 const port = process.env.PORT || 8000;
 
@@ -40,7 +41,30 @@ const bookingCollection = db.collection("booking");
 
 
 
-// const bookingCollection = db.collection("booking");
+const verifyToken = async(req, res, next)=>{
+    const authHeader = req.headers.authorization;
+    console.log(authHeader);
+    if(!authHeader){
+        return res.status(401).send({msg: "Unauthorized"})
+    }
+    const token = authHeader.split(" ")[1];
+    if(!token){
+        return res.status(401).send({msg: "Unauthorized"})
+    }
+
+    const JWKS = createRemoteJWKSet(new URL(process.env.ClintAuthJwksApi));
+    try{
+        const {payload}= await jwtVerify(token, JWKS);
+        next();
+    }catch(errors){
+        return res.status(500).send({msg:"server Error"});
+    }
+    
+    // console.log(payload);
+
+    // console.log(token,"i are enter in the page");
+    
+}
 
 app.get('/', (req, res) => {
     res.send({message: 'Server is running'})
@@ -82,7 +106,7 @@ app.get("/featured", async (req, res) => {
     }
 });
 
-app.get('/StudioData/:id', async (req, res) => {
+app.get('/StudioData/:id',verifyToken, async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -98,7 +122,7 @@ app.get('/StudioData/:id', async (req, res) => {
     }
 });
 
-app.patch('/StudioDataEdit/:id', async (req, res) => {
+app.patch('/StudioDataEdit/:id',verifyToken, async (req, res) => {
     try {
         const { id } = req.params;
         const updatedData = req.body;
@@ -117,7 +141,7 @@ app.patch('/StudioDataEdit/:id', async (req, res) => {
     }
 });
 
-app.delete('/StudioDataDelete/:id', async (req, res) => {
+app.delete('/StudioDataDelete/:id', verifyToken, async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -134,7 +158,7 @@ app.delete('/StudioDataDelete/:id', async (req, res) => {
 });
 
 
-app.post('/booking', async (req, res) => {
+app.post('/booking', verifyToken, async (req, res) => {
     try {
         const { _id, ...bookingData } = req.body;
 
@@ -148,7 +172,7 @@ app.post('/booking', async (req, res) => {
     }
 });
 
-app.get('/my-Bookings/:email', async (req, res) => {
+app.get('/my-Bookings/:email', verifyToken, async (req, res) => {
     try {
         const { email } = req.params;
 
@@ -164,7 +188,7 @@ app.get('/my-Bookings/:email', async (req, res) => {
     }
 });
 
-app.delete('/my-booking-remove/:id', async (req, res) => {
+app.delete('/my-booking-remove/:id', verifyToken, async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -179,32 +203,6 @@ app.delete('/my-booking-remove/:id', async (req, res) => {
         res.status(500).send({ message: "Internal Server Error" });
     }
 });
-
-// const verifyToken = async(req, res, next)=>{
-//     const authHeader = req.headers.authorization;
-//     console.log(authHeader);
-//     if(!authHeader){
-//         return res.status(401).send({msg: "Unauthorized"})
-//     }
-//     const token = authHeader.split(" ")[1];
-//     if(!token){
-//         return res.status(401).send({msg: "Unauthorized"})
-//     }
-
-//     const JWKS = createRemoteJWKSet(new URL(process.env.ClintAuthJwksApi));
-//     try{
-//         const {payload}= await jwtVerify(token, JWKS);
-//         next();
-//     }catch(errors){
-//         return res.status(500).send({msg:"server Error"});
-//     }
-    
-//     // console.log(payload);
-
-//     // console.log(token,"i are enter in the page");
-    
-// }
-
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
