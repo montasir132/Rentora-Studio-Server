@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { MongoClient, ObjectId } from "mongodb";
+import { createRemoteJWKSet, jwtVerify } from "jose";
 
 
 const app = express();
@@ -23,6 +24,37 @@ if (!process.env.MONGODB_URI) {
 
 const client = new MongoClient(process.env.MONGODB_URI);
 
+const verifyToken = async (req, res, next) => {
+    try {
+        const authHeader = req.headers.authorization;
+
+        if (!authHeader?.startsWith("Bearer ")) {
+            return res.status(401).send({
+                msg: "Unauthorized"
+            });
+        }
+
+        const token = authHeader.split(" ")[1];
+
+        const JWKS = createRemoteJWKSet(
+            new URL(process.env.ClintAuthJwksApi)
+        );
+
+        const { payload } = await jwtVerify(token, JWKS);
+
+        req.user = payload;
+
+        next();
+
+    } catch (error) {
+        console.error("JWT Verification Error:", error);
+
+        return res.status(401).send({
+            msg: "Invalid or expired token"
+        });
+    }
+};
+
 async function connectToMongoDB() {
   try {
     await client.connect();
@@ -41,30 +73,6 @@ const bookingCollection = db.collection("booking");
 
 
 
-const verifyToken = async(req, res, next)=>{
-    const authHeader = req.headers.authorization;
-    console.log(authHeader);
-    if(!authHeader){
-        return res.status(401).send({msg: "Unauthorized"})
-    }
-    const token = authHeader.split(" ")[1];
-    if(!token){
-        return res.status(401).send({msg: "Unauthorized"})
-    }
-
-    const JWKS = createRemoteJWKSet(new URL(process.env.ClintAuthJwksApi));
-    try{
-        const {payload}= await jwtVerify(token, JWKS);
-        next();
-    }catch(errors){
-        return res.status(500).send({msg:"server Error"});
-    }
-    
-    // console.log(payload);
-
-    // console.log(token,"i are enter in the page");
-    
-}
 
 app.get('/', (req, res) => {
     res.send({message: 'Server is running'})
