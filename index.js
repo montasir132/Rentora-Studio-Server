@@ -81,6 +81,23 @@ app.get("/featured", async (req, res) => {
     }
 });
 
+app.get('/StudioData/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const result = await addStudioCollection.findOne({
+            _id: new ObjectId(id)
+        });
+
+        res.send(result);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: "Internal Server Error" });
+    }
+});
+
+
 
 
 app.listen(port, () => {
