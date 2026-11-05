@@ -34,8 +34,29 @@ async function connectToMongoDB() {
 
 const mongoClient = await connectToMongoDB();
 const db = mongoClient.db("rentora_studio");
+const addStudioCollection = db.collection("add-studio");
+const bookingCollection = db.collection("booking");
+
+
+
+// const bookingCollection = db.collection("booking");
+
+app.get('/', (req, res) => {
+    res.send({message: 'Server is running'})
+});
+
+app.post("/addStudioCollection", async (req, res) => {
+    try {
+        const result = await addStudioCollection.insertOne(req.body);
+        res.status(201).send({ result });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ message: "Could not save the studio" });
+    }
+});
 
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })
+ 
