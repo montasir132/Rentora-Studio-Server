@@ -163,6 +163,46 @@ app.get('/my-Bookings/:email', async (req, res) => {
     }
 });
 
+app.delete('/my-booking-remove/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const result = await bookingCollection.deleteOne({
+            _id: new ObjectId(id)
+        });
+
+        res.send(result);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: "Internal Server Error" });
+    }
+});
+
+// const verifyToken = async(req, res, next)=>{
+//     const authHeader = req.headers.authorization;
+//     console.log(authHeader);
+//     if(!authHeader){
+//         return res.status(401).send({msg: "Unauthorized"})
+//     }
+//     const token = authHeader.split(" ")[1];
+//     if(!token){
+//         return res.status(401).send({msg: "Unauthorized"})
+//     }
+
+//     const JWKS = createRemoteJWKSet(new URL(process.env.ClintAuthJwksApi));
+//     try{
+//         const {payload}= await jwtVerify(token, JWKS);
+//         next();
+//     }catch(errors){
+//         return res.status(500).send({msg:"server Error"});
+//     }
+    
+//     // console.log(payload);
+
+//     // console.log(token,"i are enter in the page");
+    
+// }
 
 
 app.listen(port, () => {
