@@ -133,6 +133,19 @@ app.delete('/StudioDataDelete/:id', async (req, res) => {
 });
 
 
+app.post('/booking', async (req, res) => {
+    try {
+        const { _id, ...bookingData } = req.body;
+
+        const result = await bookingCollection.insertOne(bookingData);
+
+        res.send(result);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: "Internal Server Error" });
+    }
+});
 
 
 app.listen(port, () => {
