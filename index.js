@@ -55,8 +55,20 @@ app.post("/addStudioCollection", async (req, res) => {
     }
 });
 
+app.get('/StudioData', async (req, res) => {
+    try {
+    const result = await addStudioCollection.find().toArray();
+    res.status(200).send( result );
+} catch (err) {
+    console.error(err);
+    res.status(500).send({ message: "Could not load studios." });
+}
+
+});
+
+
+
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })
- 
