@@ -66,6 +66,20 @@ app.get('/StudioData', async (req, res) => {
 
 });
 
+app.get("/featured", async (req, res) => {
+    try {
+        const result = await addStudioCollection
+        .find()
+        .sort({ rating: -1, createdAt: -1 })
+        .limit(6)
+        .toArray();
+        
+        res.status(200).send( result );
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ message: "Could not load featured studios." });
+    }
+});
 
 
 
