@@ -6,12 +6,13 @@ import { MongoClient, ObjectId } from "mongodb";
 const app = express();
 const port = process.env.PORT || 8000;
 
-app.use(
-    cors({
-        origin: process.env.CLIENT_URL || "http://localhost:3000",
-        credentials: true,
-    })
-);
+const corsOptions = {
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 if (!process.env.MONGODB_URI) {
