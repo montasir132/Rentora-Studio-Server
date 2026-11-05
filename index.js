@@ -116,6 +116,24 @@ app.patch('/StudioDataEdit/:id', async (req, res) => {
     }
 });
 
+app.delete('/StudioDataDelete/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const result = await addStudioCollection.deleteOne({
+            _id: new ObjectId(id)
+        });
+
+        res.send(result);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: "Internal Server Error" });
+    }
+});
+
+
+
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
