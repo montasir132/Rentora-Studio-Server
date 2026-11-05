@@ -97,7 +97,24 @@ app.get('/StudioData/:id', async (req, res) => {
     }
 });
 
+app.patch('/StudioDataEdit/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updatedData = req.body;
 
+        const result = await addStudioCollection.updateOne(
+            { _id: new ObjectId(id) },
+            { $set: updatedData }
+        );
+
+        console.log(result);
+        res.status(200).json(result);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: "Internal Server Error" });
+    }
+});
 
 
 app.listen(port, () => {
